@@ -65,7 +65,7 @@ class KNearestNeighbor(object):
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
     dists = np.zeros((num_test, num_train))
-    print "STARTING compute_distances_two_loops ({})({})".format(X.shape[1], self.X_train.shape[1])
+#    print "STARTING compute_distances_two_loops ({})({})".format(X.shape[1], self.X_train.shape[1])
     for i in xrange(num_test):
       for j in xrange(num_train):
         #####################################################################
@@ -78,7 +78,7 @@ class KNearestNeighbor(object):
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
-    print "OK, we're done compute_distances_two_loops"
+    print("OK, we're done compute_distances_two_loops")
     return dists
 
   def compute_distances_one_loop(self, X):
@@ -91,7 +91,7 @@ class KNearestNeighbor(object):
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
     dists = np.zeros((num_test, num_train))
-    print "STARTING compute_distances_one_loop ({})({})".format(X.shape[1], self.X_train.shape[1])
+#    print "STARTING compute_distances_one_loop ({})({})".format(X.shape[1], self.X_train.shape[1])
     for i in xrange(num_test):
       #######################################################################
       # TODO:                                                               #
