@@ -27,6 +27,7 @@ def affine_forward(x, w, b):
   row_dim = x.shape[0]
   col_dim = np.prod(x.shape[1:])
   x_reshape = x.reshape(row_dim, col_dim)
+#  print("affine_forward x({}) xres({}) w({}) b({})".format(x.shape, x_reshape.shape, w.shape, b.shape))
   out = np.dot(x_reshape, w) + b
   #############################################################################
   #                             END OF YOUR CODE                              #
@@ -206,7 +207,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 
     # Step 7 - Shape va2 (N,D)
     va2 = xmu * invvar
-#    print("VA2.shape({})".format(va2.shape))
+#    print("gamma({}) VA2.shape({}) ND({},{})".format(gamma.shape, va2.shape, N, D))
     # Step 8 - Shape va3 (N,D)
     va3 = gamma * va2.reshape(N, D)
 
