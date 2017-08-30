@@ -143,6 +143,7 @@ def max_pool_forward_fast(x, pool_param):
   pool_height, pool_width = pool_param['pool_height'], pool_param['pool_width']
   stride = pool_param['stride']
 
+#  print("max_pool_forward_fast H({}) ph({}) cH({})".format(H, pool_height, H % pool_height, H % pool_height == 0))
   same_size = pool_height == pool_width == stride
   tiles = H % pool_height == 0 and W % pool_width == 0
   if same_size and tiles:
@@ -229,18 +230,20 @@ def max_pool_forward_im2col(x, pool_param):
   This isn't much faster than the naive version, so it should be avoided if
   possible.
   """
+#  print("max_pool_forward_im2col x.shape({})".format(x.shape))
   N, C, H, W = x.shape
   pool_height, pool_width = pool_param['pool_height'], pool_param['pool_width']
   stride = pool_param['stride']
 
-  assert (H - pool_height) % stride == 0, 'Invalid height'
-  assert (W - pool_width) % stride == 0, 'Invalid width'
+#  print("max_pool_forward_im2col H({}) ph({}) stride({}) cH({})".format(H, pool_height, stride, (H - pool_height) % stride))
+#  assert (H - pool_height) % stride == 0, 'Invalid height'
+#  assert (W - pool_width) % stride == 0, 'Invalid width'
 
   out_height = (H - pool_height) / stride + 1
   out_width = (W - pool_width) / stride + 1
 
   x_split = x.reshape(N * C, 1, H, W)
-  x_cols = im2col(x_split, pool_height, pool_width, padding=0, stride=stride)
+  x_cols = im2col_indices(x_split, pool_height, pool_width, padding=0, stride=stride)
   x_cols_argmax = np.argmax(x_cols, axis=0)
   x_cols_max = x_cols[x_cols_argmax, np.arange(x_cols.shape[1])]
   out = x_cols_max.reshape(out_height, out_width, N, C).transpose(2, 3, 0, 1)
