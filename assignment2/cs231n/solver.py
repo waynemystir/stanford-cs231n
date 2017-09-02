@@ -252,8 +252,8 @@ class Solver(object):
         self.val_acc_history.append(val_acc)
 
         if self.verbose:
-          print('(Epoch %d / %d) train acc: %f; val_acc: %f' % (
-                 self.epoch, self.num_epochs, train_acc, val_acc))
+          print('(Epoch %d / %d) train acc: %f; val_acc: %f learning_rate(%f)' % (
+                 self.epoch, self.num_epochs, train_acc, val_acc, self.optim_configs['W1']['learning_rate']))
 
         # Keep track of the best model
         if val_acc > self.best_val_acc:
