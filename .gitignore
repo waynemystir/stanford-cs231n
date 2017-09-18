@@ -1,0 +1,4 @@
+.DS_Store
+coco_captioning
+pretrained_model.h5
+tiny-imagenet-100-A

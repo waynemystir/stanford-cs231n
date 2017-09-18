@@ -32,7 +32,13 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
   # hidden state and any values you need for the backward pass in the next_h   #
   # and cache variables respectively.                                          #
   ##############################################################################
-  pass
+  # Step1: First get what's inside the tanh
+  forward = np.dot(x, Wx) + np.dot(prev_h, Wh) + b
+  # Step2 : Squash anyhthing in there with tanh
+  next_h = np.tanh(forward)
+
+  # Add what's needed for the backaward pass
+  cache = x, Wx, prev_h, Wh,  forward
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
@@ -61,7 +67,17 @@ def rnn_step_backward(dnext_h, cache):
   # HINT: For the tanh function, you can compute the local derivative in terms #
   # of the output value from tanh.                                             #
   ##############################################################################
-  pass
+  x, Wx, prev_h, Wh,  forward = cache
+
+  # Backprop step 2:
+  dforward = (1 - np.tanh(forward)**2) * dnext_h
+
+  # Backprop step 1:
+  dx = np.dot(dforward, Wx.T)
+  dWx = np.dot(x.T, dforward)
+  dprev_h = np.dot(dforward, Wh.T)
+  dWh = np.dot(prev_h.T, dforward)
+  db = np.sum(dforward, axis=0)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
@@ -92,7 +108,27 @@ def rnn_forward(x, h0, Wx, Wh, b):
   # input data. You should use the rnn_step_forward function that you defined  #
   # above.                                                                     #
   ##############################################################################
-  pass
+  # Initialize shape
+  N, T, D = x.shape
+  H = h0.shape[1]
+  # Initialize cache
+  cache = []
+
+  # Transpose x for the ease of processing
+  x = x.transpose(1, 0, 2)
+  h = np.zeros((T, N, H))
+
+  h[-1] = h0
+  for t in range(T):
+    if t == 0:
+      h_prev = h0
+    else:
+      h_prev = h[t - 1]
+    h[t], cache_next = rnn_step_forward(x[t], h_prev, Wx, Wh, b)
+    cache.append(cache_next)
+
+  # detranspose the hidden state vector
+  h = h.transpose(1, 0, 2)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
@@ -119,7 +155,34 @@ def rnn_backward(dh, cache):
   # sequence of data. You should use the rnn_step_backward function that you   #
   # defined above.                                                             #
   ##############################################################################
-  pass
+  # Backprop into the rnn.
+
+  # Dimensions
+  N, T, H = dh.shape
+  D = cache[0][0].shape[1]
+
+  # Initialize dx,dh0,dWx,dWh,db
+  dx = np.zeros((T, N, D))
+  dh0 = np.zeros((N, H))
+  db = np.zeros((H))
+  dWh = np.zeros((H, H))
+  dWx = np.zeros((D, H))
+
+  # On transpose dh
+  dh = dh.transpose(1, 0, 2)
+  dh_prev = np.zeros((N, H))
+
+  for t in reversed(range(T)):
+    dh_current = dh[t] + dh_prev
+    dx_t, dh_prev, dWx_t, dWh_t, db_t = rnn_step_backward(
+      dh_current, cache[t])
+    dx[t] += dx_t
+    dh0 = dh_prev
+    dWx += dWx_t
+    dWh += dWh_t
+    db += db_t
+
+  dx = dx.transpose(1, 0, 2)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
@@ -412,7 +475,7 @@ def temporal_softmax_loss(x, y, mask, verbose=False):
   dx_flat /= N
   dx_flat *= mask_flat[:, None]
   
-  if verbose: print 'dx_flat: ', dx_flat.shape
+  if verbose: print('dx_flat: ', dx_flat.shape)
   
   dx = dx_flat.reshape(N, T, V)
   
